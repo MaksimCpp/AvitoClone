@@ -87,7 +87,7 @@ func (repo *PostgreSQLUserRepository) GetByEmail(ctx context.Context, email stri
 	return &userEntity, nil
 }
 
-func (repo *PostgreSQLUserRepository) GetById(ctx context.Context, id int) (*user.User, error) {
+func (repo *PostgreSQLUserRepository) GetByID(ctx context.Context, id int) (*user.User, error) {
 	query := `
 		SELECT
 			id, email, password, created_at

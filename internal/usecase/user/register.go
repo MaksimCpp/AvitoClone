@@ -48,6 +48,6 @@ func (usecase *PostgreSQLRegisterUserUseCase) Execute(
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return userEntity, nil
 }

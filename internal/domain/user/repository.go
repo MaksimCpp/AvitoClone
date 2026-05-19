@@ -1,0 +1,9 @@
+package user
+
+import "context"
+
+type UserRepository interface {
+	Create(ctx context.Context, userEntity *User) error
+	GetByEmail(ctx context.Context, email string) (*User, error)
+	GetById(ctx context.Context, id int) (*User, error)
+}

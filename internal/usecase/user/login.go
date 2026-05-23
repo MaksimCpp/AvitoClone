@@ -14,7 +14,7 @@ type LoginInput struct {
 }
 
 type LoginOutput struct {
-	AccessToken string
+	AccessToken string `json:"access_token"`
 }
 
 type LoginUserUseCase interface {
@@ -30,10 +30,12 @@ type PostgreSQLLoginUserUseCase struct {
 func NewPostgreSQLLoginUserUseCase(
 	repo user.UserRepository,
 	hasher *hash.BcryptHasher,
+	jwtService *jwtservice.JWTService,
 ) *PostgreSQLLoginUserUseCase {
 	return &PostgreSQLLoginUserUseCase{
 		repo: repo,
 		hasher: hasher,
+		jwtService: jwtService,
 	}
 }
 

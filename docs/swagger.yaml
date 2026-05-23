@@ -1,0 +1,112 @@
+basePath: /api/v1
+definitions:
+  errorresponse.ErrorResponse:
+    properties:
+      detail:
+        type: string
+    type: object
+  handler.UserResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+    type: object
+  handler.registerAndLoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  userusecase.LoginOutput:
+    properties:
+      access_token:
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: Avito clone API
+  title: AvitoClone API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login with email and password
+      parameters:
+      - description: Login request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.registerAndLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/userusecase.LoginOutput'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorresponse.ErrorResponse'
+      summary: Login user
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register new user
+      parameters:
+      - description: Register request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.registerAndLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorresponse.ErrorResponse'
+      summary: Register user
+      tags:
+      - auth
+  /users/me:
+    get:
+      consumes:
+      - application/json
+      description: Returns current authorized user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.UserResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorresponse.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get current user
+      tags:
+      - users
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

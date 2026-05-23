@@ -13,7 +13,7 @@ type RegisterInput struct {
 }
 
 type RegisterUserUseCase interface {
-	Execute(ctx context.Context, input RegisterInput) error
+	Execute(ctx context.Context, input RegisterInput) (*user.User, error)
 }
 
 type PostgreSQLRegisterUserUseCase struct {
@@ -34,7 +34,6 @@ func NewPostgreSQLRegisterUserUseCase(
 func (usecase *PostgreSQLRegisterUserUseCase) Execute(
 	ctx context.Context, input RegisterInput,
 ) (*user.User, error) {
-	// Добавить в миграции проверку длины пароля
 	hashPassword, err := usecase.hasher.Hash(input.Password)
 	if err != nil {
 		return nil, err

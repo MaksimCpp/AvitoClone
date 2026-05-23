@@ -12,7 +12,6 @@ type GetMeUseCase interface {
 
 type PostgreSQLGetMeUseCase struct {
 	repo user.UserRepository
-
 }
 
 func NewPostgreSQLGetMeUseCase(

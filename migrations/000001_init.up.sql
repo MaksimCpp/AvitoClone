@@ -1,9 +1,7 @@
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    email VARCHAR(100) UNIQUE NOT NULL CHECK(
-        email ~ '^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}$'
-    ),
-    password VARCHAR(100) NOT NULL CHECK,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(100) NOT NULL CHECK(char_length(password) >= 6),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

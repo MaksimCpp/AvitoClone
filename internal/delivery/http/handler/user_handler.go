@@ -31,7 +31,7 @@ func NewUserHandler(
 	}
 }
 
-type registerAndLoginRequest struct {
+type RegisterAndLoginRequest struct {
 	Email string `json:"email"`
 	Password string `json:"password"`
 }
@@ -39,6 +39,10 @@ type registerAndLoginRequest struct {
 type UserResponse struct {
 	ID int `json:"id"`
 	Email string `json:"email"`
+}
+
+type AccessTokenResponse struct {
+	AccessToken string `json:"access_token"`
 }
 
 // Register godoc
@@ -49,14 +53,14 @@ type UserResponse struct {
 // @Accept json
 // @Produce json
 //
-// @Param request body registerAndLoginRequest true "Register request"
+// @Param request body RegisterAndLoginRequest true "Register request"
 //
 // @Success 201 {object} UserResponse
 // @Failure 400 {object} errorresponse.ErrorResponse
 //
 // @Router /auth/register [post]
 func (h *UserHandler) Register(c *gin.Context) {
-	var req registerAndLoginRequest
+	var req RegisterAndLoginRequest
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, errorresponse.ErrorResponse{Detail: err.Error()})
@@ -74,11 +78,11 @@ func (h *UserHandler) Register(c *gin.Context) {
 		return
 	}
 
-	dto := userusecase.RegisterInput{
+	entity := user.User{
 		Email: req.Email,
 		Password: req.Password,
 	}
-	result, err := h.registerUseCase.Execute(c.Request.Context(), dto)
+	result, err := h.registerUseCase.Execute(c.Request.Context(), &entity)
 	
 	if err != nil {
 		if errors.Is(err, user.ErrUserAlreadyExists) {
@@ -106,25 +110,25 @@ func (h *UserHandler) Register(c *gin.Context) {
 // @Accept json
 // @Produce json
 //
-// @Param request body registerAndLoginRequest true "Login request"
+// @Param request body RegisterAndLoginRequest true "Login request"
 //
-// @Success 200 {object} userusecase.LoginOutput
+// @Success 200 {object} AccessToken
 // @Failure 401 {object} errorresponse.ErrorResponse
 //
 // @Router /auth/login [post]
 func (h *UserHandler) Login(c *gin.Context) {
-	var req registerAndLoginRequest
+	var req RegisterAndLoginRequest
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, errorresponse.ErrorResponse{Detail: err.Error()})
 		return
 	}
 
-	dto := userusecase.LoginInput{
+	entity := user.User{
 		Email: req.Email,
 		Password: req.Password,
 	}
-	token, err := h.loginUseCase.Execute(c.Request.Context(), dto)
+	token, err := h.loginUseCase.Execute(c.Request.Context(), &entity)
 
 	if err != nil {
 		if errors.Is(err, user.ErrInvalidCredentials) {
@@ -135,7 +139,7 @@ func (h *UserHandler) Login(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, token)
+	c.JSON(http.StatusOK, AccessTokenResponse{AccessToken: token})
 }
 
 // GetMe godoc

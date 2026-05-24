@@ -2,8 +2,10 @@ package postgresql
 
 import (
 	"context"
+	"errors"
 
 	"github.com/MaksimCpp/AvitoClone/internal/domain/item"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -16,11 +18,6 @@ func NewPostgreSQLItemRepository(pool *pgxpool.Pool) *PostgreSQLItemRepository {
 		pool: pool,
 	}
 }
-
-// Create(ctx context.Context, itemEntity *Item) error
-// GetByID(ctx context.Context, id int) (*Item, error)
-// List(ctx context.Context, limit int, offset int) ([]*Item, error)
-// Delete(ctx context.Context, id int) error
 
 func (repo *PostgreSQLItemRepository) Create(ctx context.Context, itemEntity *item.Item) error {
 	query := `
@@ -39,10 +36,137 @@ func (repo *PostgreSQLItemRepository) Create(ctx context.Context, itemEntity *it
 		itemEntity.Title,
 		itemEntity.Description,
 		itemEntity.Price,
-		itemEntity.Price,
 	).Scan(
 		&itemEntity.ID,
 		&itemEntity.CreatedAt,
 	)
 
+}
+
+func (repo *PostgreSQLItemRepository) GetByID(ctx context.Context, id int) (*item.Item, error) {
+	query := `
+		SELECT
+			id, user_id, title, description, price
+		FROM
+			items
+		WHERE id = $1;
+	`
+
+	var itemEntity item.Item
+
+	err := repo.pool.QueryRow(
+		ctx,
+		query,
+		id,
+	).Scan(
+		&itemEntity.ID,
+		&itemEntity.UserID,
+		&itemEntity.Title,
+		&itemEntity.Description,
+		&itemEntity.Price,
+	)
+
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, item.ErrItemNotFound
+		}
+		return nil, err
+	}
+
+	return &itemEntity, nil
+}
+
+func (repo *PostgreSQLItemRepository) List(
+	ctx context.Context, limit int, offset int,
+) ([]*item.Item, error) {
+	query := `
+		SELECT
+			title, price
+		FROM
+			items
+		LIMIT $1 OFFSET $2;
+	`
+
+	rows, err := repo.pool.Query(
+		ctx,
+		query,
+		limit,
+		offset,
+	)
+	
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var items []*item.Item
+
+	for rows.Next() {
+		itemEntity := item.Item{}
+		rows.Scan(
+			&itemEntity.Title,
+			&itemEntity.Price,
+		)
+
+		items = append(items, &itemEntity)
+	}
+
+	return items, nil
+}
+
+func (repo *PostgreSQLItemRepository) ListByUserID(
+	ctx context.Context, userID int,
+) ([]*item.Item, error) {
+	query := `
+		SELECT
+			title, price
+		FROM
+			items
+		WHERE
+			user_id = $1;
+	`
+
+	rows, err := repo.pool.Query(
+		ctx,
+		query,
+		userID,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	var items []*item.Item
+
+	for rows.Next() {
+		itemEntity := item.Item{}
+		rows.Scan(
+			&itemEntity.Title,
+			&itemEntity.Price,
+		)
+
+		items = append(items, &itemEntity)
+	}
+
+	return items, nil
+}
+
+func (repo *PostgreSQLItemRepository) Delete(ctx context.Context, id int) error {
+	query := `
+		DELETE FROM items
+		WHERE id = $1;
+	`
+
+	result, err := repo.pool.Exec(ctx, query, id)
+
+	if err != nil {
+		return err
+	}
+
+	if result.RowsAffected() == 0 {
+		return item.ErrItemNotFound
+	}
+
+	return nil
 }

@@ -5,6 +5,18 @@ definitions:
       detail:
         type: string
     type: object
+  handler.AccessTokenResponse:
+    properties:
+      access_token:
+        type: string
+    type: object
+  handler.RegisterAndLoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
   handler.UserResponse:
     properties:
       email:
@@ -12,19 +24,6 @@ definitions:
       id:
         type: integer
     type: object
-  handler.registerAndLoginRequest:
-    properties:
-      email:
-        type: string
-      password:
-        type: string
-    type: object
-  userusecase.LoginOutput:
-    properties:
-      access_token:
-        type: string
-    type: object
-host: localhost:8000
 info:
   contact: {}
   description: Avito clone API
@@ -42,14 +41,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handler.registerAndLoginRequest'
+          $ref: '#/definitions/handler.RegisterAndLoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/userusecase.LoginOutput'
+            $ref: '#/definitions/handler.AccessTokenResponse'
         "401":
           description: Unauthorized
           schema:
@@ -68,7 +67,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/handler.registerAndLoginRequest'
+          $ref: '#/definitions/handler.RegisterAndLoginRequest'
       produces:
       - application/json
       responses:

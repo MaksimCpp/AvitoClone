@@ -6,7 +6,6 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "localhost:8000",
     "basePath": "/api/v1",
     "paths": {
         "/auth/login": {
@@ -29,7 +28,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.registerAndLoginRequest"
+                            "$ref": "#/definitions/handler.RegisterAndLoginRequest"
                         }
                     }
                 ],
@@ -37,7 +36,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/userusecase.LoginOutput"
+                            "$ref": "#/definitions/handler.AccessTokenResponse"
                         }
                     },
                     "401": {
@@ -69,7 +68,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.registerAndLoginRequest"
+                            "$ref": "#/definitions/handler.RegisterAndLoginRequest"
                         }
                     }
                 ],
@@ -133,18 +132,15 @@
                 }
             }
         },
-        "handler.UserResponse": {
+        "handler.AccessTokenResponse": {
             "type": "object",
             "properties": {
-                "email": {
+                "access_token": {
                     "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 }
             }
         },
-        "handler.registerAndLoginRequest": {
+        "handler.RegisterAndLoginRequest": {
             "type": "object",
             "properties": {
                 "email": {
@@ -155,11 +151,14 @@
                 }
             }
         },
-        "userusecase.LoginOutput": {
+        "handler.UserResponse": {
             "type": "object",
             "properties": {
-                "access_token": {
+                "email": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 }
             }
         }

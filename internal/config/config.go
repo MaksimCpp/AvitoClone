@@ -9,6 +9,7 @@ import (
 
 type Config struct {
 	AppPort string
+	SwaggerHost string
 
 	Host string
 	Port string
@@ -25,6 +26,7 @@ func Load() *Config {
 	
 	cfg := &Config{
 		AppPort: os.Getenv("APP_PORT"),
+		SwaggerHost: os.Getenv("SWAGGER_HOST"),
 		Host: os.Getenv("POSTGRES_HOST"),
 		Port: os.Getenv("POSTGRES_PORT"),
 		User: os.Getenv("POSTGRES_USER"),

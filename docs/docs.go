@@ -35,7 +35,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.registerAndLoginRequest"
+                            "$ref": "#/definitions/handler.RegisterAndLoginRequest"
                         }
                     }
                 ],
@@ -43,7 +43,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/userusecase.LoginOutput"
+                            "$ref": "#/definitions/handler.AccessTokenResponse"
                         }
                     },
                     "401": {
@@ -75,7 +75,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handler.registerAndLoginRequest"
+                            "$ref": "#/definitions/handler.RegisterAndLoginRequest"
                         }
                     }
                 ],
@@ -139,18 +139,15 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.UserResponse": {
+        "handler.AccessTokenResponse": {
             "type": "object",
             "properties": {
-                "email": {
+                "access_token": {
                     "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 }
             }
         },
-        "handler.registerAndLoginRequest": {
+        "handler.RegisterAndLoginRequest": {
             "type": "object",
             "properties": {
                 "email": {
@@ -161,11 +158,14 @@ const docTemplate = `{
                 }
             }
         },
-        "userusecase.LoginOutput": {
+        "handler.UserResponse": {
             "type": "object",
             "properties": {
-                "access_token": {
+                "email": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 }
             }
         }
@@ -182,7 +182,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8000",
+	Host:             "",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
 	Title:            "AvitoClone API",

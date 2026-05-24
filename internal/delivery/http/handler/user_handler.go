@@ -112,7 +112,7 @@ func (h *UserHandler) Register(c *gin.Context) {
 //
 // @Param request body RegisterAndLoginRequest true "Login request"
 //
-// @Success 200 {object} AccessToken
+// @Success 200 {object} AccessTokenResponse
 // @Failure 401 {object} errorresponse.ErrorResponse
 //
 // @Router /auth/login [post]

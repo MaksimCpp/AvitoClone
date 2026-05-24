@@ -1,7 +1,6 @@
 // @title AvitoClone API
 // @version 1.0
 // @description Avito clone API
-// @host localhost:8000
 // @BasePath /api/v1
 
 // @securityDefinitions.apikey BearerAuth
@@ -13,7 +12,7 @@ import (
 	"log"
 	"time"
 
-	_ "github.com/MaksimCpp/AvitoClone/docs"
+	docs "github.com/MaksimCpp/AvitoClone/docs"
 	"github.com/MaksimCpp/AvitoClone/internal/config"
 	httpdelivery "github.com/MaksimCpp/AvitoClone/internal/delivery/http"
 	"github.com/MaksimCpp/AvitoClone/internal/delivery/http/handler"
@@ -29,6 +28,7 @@ import (
 
 func main() {
 	cfg := config.Load()
+	docs.SwaggerInfo.Host = cfg.SwaggerHost
 	pool, err := database.NewPostgresPool(cfg.ConnStr())
 	if err != nil {
 		log.Fatal(err)

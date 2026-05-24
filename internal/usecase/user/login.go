@@ -8,17 +8,8 @@ import (
 	jwtservice "github.com/MaksimCpp/AvitoClone/internal/infrastructure/jwt"
 )
 
-type LoginInput struct {
-	Email string
-	Password string
-}
-
-type LoginOutput struct {
-	AccessToken string `json:"access_token"`
-}
-
 type LoginUserUseCase interface {
-	Execute(ctx context.Context, input LoginInput) (*LoginOutput, error)
+	Execute(ctx context.Context, input *user.User) (string, error)
 }
 
 type PostgreSQLLoginUserUseCase struct {
@@ -40,22 +31,22 @@ func NewPostgreSQLLoginUserUseCase(
 }
 
 func (usecase *PostgreSQLLoginUserUseCase) Execute(
-	ctx context.Context, input LoginInput,
-) (*LoginOutput, error) {
+	ctx context.Context, input *user.User,
+) (string, error) {
 	userEntity, err := usecase.repo.GetByEmail(ctx, input.Email)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	err = usecase.hasher.Compare(userEntity.Password, input.Password)
 	if err != nil {
-		return nil, user.ErrInvalidCredentials
+		return "", user.ErrInvalidCredentials
 	}
 
 	token, err := usecase.jwtService.Generate(userEntity.ID)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return &LoginOutput{AccessToken: token}, nil
+	return token, nil
 }

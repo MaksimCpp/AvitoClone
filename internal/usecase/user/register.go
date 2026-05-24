@@ -13,7 +13,7 @@ type RegisterInput struct {
 }
 
 type RegisterUserUseCase interface {
-	Execute(ctx context.Context, input RegisterInput) (*user.User, error)
+	Execute(ctx context.Context, input *user.User) (*user.User, error)
 }
 
 type PostgreSQLRegisterUserUseCase struct {
@@ -32,21 +32,18 @@ func NewPostgreSQLRegisterUserUseCase(
 }
 
 func (usecase *PostgreSQLRegisterUserUseCase) Execute(
-	ctx context.Context, input RegisterInput,
+	ctx context.Context, input *user.User,
 ) (*user.User, error) {
 	hashPassword, err := usecase.hasher.Hash(input.Password)
 	if err != nil {
 		return nil, err
 	}
-	userEntity := &user.User{
-		Email: input.Email,
-		Password: hashPassword,
-	}
+	input.Password = hashPassword
 
-	err = usecase.repo.Create(ctx, userEntity)
+	err = usecase.repo.Create(ctx, input)
 	if err != nil {
 		return nil, err
 	}
 
-	return userEntity, nil
+	return input, nil
 }

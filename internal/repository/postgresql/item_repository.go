@@ -81,7 +81,7 @@ func (repo *PostgreSQLItemRepository) List(
 ) ([]*item.Item, error) {
 	query := `
 		SELECT
-			title, price
+			id, title, price
 		FROM
 			items
 		LIMIT $1 OFFSET $2;
@@ -104,6 +104,7 @@ func (repo *PostgreSQLItemRepository) List(
 	for rows.Next() {
 		itemEntity := item.Item{}
 		rows.Scan(
+			&itemEntity.ID,
 			&itemEntity.Title,
 			&itemEntity.Price,
 		)
@@ -119,7 +120,7 @@ func (repo *PostgreSQLItemRepository) ListByUserID(
 ) ([]*item.Item, error) {
 	query := `
 		SELECT
-			title, price
+			id, title, price
 		FROM
 			items
 		WHERE
@@ -142,6 +143,7 @@ func (repo *PostgreSQLItemRepository) ListByUserID(
 	for rows.Next() {
 		itemEntity := item.Item{}
 		rows.Scan(
+			&itemEntity.ID,
 			&itemEntity.Title,
 			&itemEntity.Price,
 		)

@@ -20,6 +20,7 @@ import (
 	"github.com/MaksimCpp/AvitoClone/internal/infrastructure/hash"
 	jwtservice "github.com/MaksimCpp/AvitoClone/internal/infrastructure/jwt"
 	"github.com/MaksimCpp/AvitoClone/internal/repository/postgresql"
+	itemusecase "github.com/MaksimCpp/AvitoClone/internal/usecase/item"
 	userusecase "github.com/MaksimCpp/AvitoClone/internal/usecase/user"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -45,10 +46,25 @@ func main() {
 	registerUserUseCase := userusecase.NewPostgreSQLRegisterUserUseCase(userRepo, hasher)
 	loginUserUseCase := userusecase.NewPostgreSQLLoginUserUseCase(userRepo, hasher, jwtService)
 	getMeUseCase := userusecase.NewPostgreSQLGetMeUseCase(userRepo)
-
 	userHandler := handler.NewUserHandler(registerUserUseCase, loginUserUseCase, getMeUseCase)
 
+	itemRepo := postgresql.NewPostgreSQLItemRepository(pool)
+	createItemUseCase := itemusecase.NewPostgreSQLCreateItemUseCase(itemRepo)
+	deleteItemUseCase := itemusecase.NewPostgreSQLDeleteItemUseCasee(itemRepo)
+	getItemByIDUseCase := itemusecase.NewPostgreSQLGetItemByIDUseCase(itemRepo)
+	listItemsByUserIDUseCase := itemusecase.NewPostgreSQLListItemsByUserIDUseCase(itemRepo)
+	listItemsUseCase := itemusecase.NewPostgreSQLListItemsUseCase(itemRepo)
+	itemHandler := handler.NewItemHandler(
+		createItemUseCase, deleteItemUseCase, getItemByIDUseCase,
+		listItemsByUserIDUseCase, listItemsUseCase,
+	)
+
 	router := gin.Default()
+	err = router.SetTrustedProxies(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	
 	router.GET(
 		"/swagger/*any",
 		ginSwagger.WrapHandler(swaggerFiles.Handler),
@@ -56,6 +72,7 @@ func main() {
 	httpdelivery.SetupRoutes(
 		router,
 		userHandler,
+		itemHandler,
 		jwtService,
 	)
 

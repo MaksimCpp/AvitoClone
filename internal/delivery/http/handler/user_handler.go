@@ -46,18 +46,14 @@ type AccessTokenResponse struct {
 }
 
 // Register godoc
-//
 // @Summary Register user
 // @Description Register new user
 // @Tags auth
 // @Accept json
 // @Produce json
-//
 // @Param request body RegisterAndLoginRequest true "Register request"
-//
 // @Success 201 {object} UserResponse
 // @Failure 400 {object} errorresponse.ErrorResponse
-//
 // @Router /auth/register [post]
 func (h *UserHandler) Register(c *gin.Context) {
 	var req RegisterAndLoginRequest
@@ -103,18 +99,14 @@ func (h *UserHandler) Register(c *gin.Context) {
 }
 
 // Login godoc
-//
 // @Summary Login user
 // @Description Login with email and password
 // @Tags auth
 // @Accept json
 // @Produce json
-//
 // @Param request body RegisterAndLoginRequest true "Login request"
-//
 // @Success 200 {object} AccessTokenResponse
 // @Failure 401 {object} errorresponse.ErrorResponse
-//
 // @Router /auth/login [post]
 func (h *UserHandler) Login(c *gin.Context) {
 	var req RegisterAndLoginRequest
@@ -143,18 +135,14 @@ func (h *UserHandler) Login(c *gin.Context) {
 }
 
 // GetMe godoc
-//
 // @Summary Get current user
 // @Description Returns current authorized user
 // @Tags users
 // @Accept json
 // @Produce json
-//
 // @Security BearerAuth
-//
 // @Success 200 {object} UserResponse
 // @Failure 401 {object} errorresponse.ErrorResponse
-//
 // @Router /users/me [get]
 func (h *UserHandler) GetMe(c *gin.Context) {
 	userIDValue, exists := c.Get("user_id")

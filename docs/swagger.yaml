@@ -10,6 +10,22 @@ definitions:
       access_token:
         type: string
     type: object
+  handler.CreateItemRequest:
+    properties:
+      description:
+        type: string
+      price:
+        type: number
+      title:
+        type: string
+    type: object
+  handler.ItemResponse:
+    properties:
+      price:
+        type: number
+      title:
+        type: string
+    type: object
   handler.RegisterAndLoginRequest:
     properties:
       email:
@@ -82,6 +98,190 @@ paths:
       summary: Register user
       tags:
       - auth
+  /items:
+    get:
+      consumes:
+      - application/json
+      description: List items
+      parameters:
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handler.ItemResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorresponse.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorresponse.ErrorResponse'
+      summary: List items
+      tags:
+      - items
+    post:
+      consumes:
+      - application/json
+      description: Create item
+      parameters:
+      - description: Create item request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateItemRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.ItemResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorresponse.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorresponse.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create item
+      tags:
+      - items
+  /items/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete item
+      parameters:
+      - description: Item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorresponse.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorresponse.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete item
+      tags:
+      - items
+    get:
+      consumes:
+      - application/json
+      description: Get item by id
+      parameters:
+      - description: Item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.ItemResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorresponse.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/errorresponse.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get item by id
+      tags:
+      - items
+  /items/me:
+    get:
+      consumes:
+      - application/json
+      description: List my items
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handler.ItemResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorresponse.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorresponse.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List my items
+      tags:
+      - items
+  /users/{user_id}/items:
+    get:
+      consumes:
+      - application/json
+      description: List items by user id
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handler.ItemResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorresponse.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorresponse.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List items by user id
+      tags:
+      - users
   /users/me:
     get:
       consumes:

@@ -42,11 +42,13 @@ type CreateItemRequest struct {
 }
 
 type ItemResponse struct {
+	ID int `json:"id"`
 	Title string `json:"title"`
 	Price float64 `json:"price"`
 }
 
 type ItemDetailResponse struct {
+	ID int `json:"id"`
 	Title string `json:"title"`
 	Description string `json:"description"`
 	Price float64 `json:"price"`
@@ -91,6 +93,7 @@ func (h *ItemHandler) Create(c *gin.Context) {
 		return
 	}
 	response := ItemResponse{
+		ID: result.ID,
 		Title: result.Title,
 		Price: result.Price,
 	}
@@ -186,6 +189,7 @@ func (h *ItemHandler) GetByID(c *gin.Context) {
 	}
 
 	response := ItemDetailResponse{
+		ID: itemEntity.ID,
 		Title: itemEntity.Title,
 		Description: itemEntity.Description,
 		Price: itemEntity.Price,
@@ -227,6 +231,7 @@ func (h *ItemHandler) ListByUserID(c *gin.Context) {
 
 	for _, itemEntity := range items {
 		response = append(response, ItemResponse{
+			ID: itemEntity.ID,
 			Title: itemEntity.Title,
 			Price: itemEntity.Price,
 		})
@@ -268,6 +273,7 @@ func (h *ItemHandler) ListMyItems(c *gin.Context) {
 
 	for _, itemEntity := range items {
 		response = append(response, ItemResponse{
+			ID: itemEntity.ID,
 			Title: itemEntity.Title,
 			Price: itemEntity.Price,
 		})
@@ -316,6 +322,7 @@ func (h *ItemHandler) List(c *gin.Context) {
 
 	for _, itemEntity := range items {
 		response = append(response, ItemResponse{
+			ID: itemEntity.ID,
 			Title: itemEntity.Title,
 			Price: itemEntity.Price,
 		})

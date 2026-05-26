@@ -23,7 +23,6 @@ func NewPostgreSQLDeleteItemUseCasee(repo item.ItemRepository) *PostgreSQLDelete
 func (usecase *PostgreSQLDeleteItemUseCase) Execute(
 	ctx context.Context, id int,
 ) error {
-	err := usecase.repo.Delete(ctx, id)
-	return err
+	return usecase.repo.Delete(ctx, id)
 }
 

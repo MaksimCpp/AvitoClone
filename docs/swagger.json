@@ -449,6 +449,9 @@
                 "description": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "integer"
+                },
                 "price": {
                     "type": "number"
                 },
@@ -460,6 +463,9 @@
         "handler.ItemResponse": {
             "type": "object",
             "properties": {
+                "id": {
+                    "type": "integer"
+                },
                 "price": {
                     "type": "number"
                 },

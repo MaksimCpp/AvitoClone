@@ -456,6 +456,9 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "integer"
+                },
                 "price": {
                     "type": "number"
                 },
@@ -467,6 +470,9 @@ const docTemplate = `{
         "handler.ItemResponse": {
             "type": "object",
             "properties": {
+                "id": {
+                    "type": "integer"
+                },
                 "price": {
                     "type": "number"
                 },

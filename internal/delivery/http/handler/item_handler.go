@@ -137,17 +137,17 @@ func (h *ItemHandler) Delete(c *gin.Context) {
 	}
 
 	itemEntity, err := h.getByIDUseCase.Execute(c.Request.Context(), int(id))
+	if err != nil {
+		c.JSON(http.StatusNotFound, errorresponse.ErrorResponse{Detail: err.Error()})
+		return
+	}
 	if userID != itemEntity.UserID {
-		c.JSON(http.StatusNotFound, errorresponse.ErrorResponse{Detail: "Invalid user id."})
+		c.JSON(http.StatusForbidden, errorresponse.ErrorResponse{Detail: "Invalid user id."})
 		return
 	}
 
 	err = h.deleteUseCase.Execute(c.Request.Context(), int(id))
 	if err != nil {
-		if errors.Is(err, item.ErrItemNotFound) {
-			c.JSON(http.StatusNotFound, errorresponse.ErrorResponse{Detail: err.Error()})
-			return
-		}
 		c.JSON(http.StatusInternalServerError, errorresponse.ErrorResponse{Detail: err.Error()})
 		return
 	}

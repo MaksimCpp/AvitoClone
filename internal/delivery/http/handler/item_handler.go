@@ -185,8 +185,9 @@ func (h *ItemHandler) GetByID(c *gin.Context) {
 		return
 	}
 
-	response := ItemResponse{
+	response := ItemDetailResponse{
 		Title: itemEntity.Title,
+		Description: itemEntity.Description,
 		Price: itemEntity.Price,
 	}
 

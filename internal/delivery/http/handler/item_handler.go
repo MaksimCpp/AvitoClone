@@ -46,6 +46,12 @@ type ItemResponse struct {
 	Price float64 `json:"price"`
 }
 
+type ItemDetailResponse struct {
+	Title string `json:"title"`
+	Description string `json:"description"`
+	Price float64 `json:"price"`
+}
+
 // @Summary Create item
 // @Description Create item
 // @Tags items
@@ -129,7 +135,7 @@ func (h *ItemHandler) Delete(c *gin.Context) {
 
 	itemEntity, err := h.getByIDUseCase.Execute(c.Request.Context(), int(id))
 	if userID != itemEntity.UserID {
-		c.JSON(http.StatusBadRequest, errorresponse.ErrorResponse{Detail: "Invalid user id."})
+		c.JSON(http.StatusNotFound, errorresponse.ErrorResponse{Detail: "Invalid user id."})
 		return
 	}
 
@@ -153,7 +159,7 @@ func (h *ItemHandler) Delete(c *gin.Context) {
 // @Produce json
 // @Param id path int true "Item ID"
 // @Security BearerAuth
-// @Success 200 {object} ItemResponse
+// @Success 200 {object} ItemDetailResponse
 // @Failure 404 {object} errorresponse.ErrorResponse
 // @Failure 401 {object} errorresponse.ErrorResponse
 // @Router /items/{id} [get]
@@ -179,8 +185,9 @@ func (h *ItemHandler) GetByID(c *gin.Context) {
 		return
 	}
 
-	response := ItemResponse{
+	response := ItemDetailResponse{
 		Title: itemEntity.Title,
+		Description: itemEntity.Description,
 		Price: itemEntity.Price,
 	}
 

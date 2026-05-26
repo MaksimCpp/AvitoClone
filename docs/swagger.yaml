@@ -19,6 +19,15 @@ definitions:
       title:
         type: string
     type: object
+  handler.ItemDetailResponse:
+    properties:
+      description:
+        type: string
+      price:
+        type: number
+      title:
+        type: string
+    type: object
   handler.ItemResponse:
     properties:
       price:
@@ -208,7 +217,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handler.ItemResponse'
+            $ref: '#/definitions/handler.ItemDetailResponse'
         "401":
           description: Unauthorized
           schema:

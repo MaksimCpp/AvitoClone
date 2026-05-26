@@ -270,7 +270,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.ItemResponse"
+                            "$ref": "#/definitions/handler.ItemDetailResponse"
                         }
                     },
                     "401": {
@@ -437,6 +437,20 @@ const docTemplate = `{
             }
         },
         "handler.CreateItemRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.ItemDetailResponse": {
             "type": "object",
             "properties": {
                 "description": {

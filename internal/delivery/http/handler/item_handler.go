@@ -308,8 +308,8 @@ func (h *ItemHandler) List(c *gin.Context) {
 		offset = 0
 	}
 
-	if int(limit) < 1 || int(offset) < 0 {
-		c.JSON(http.StatusBadRequest, errorresponse.ErrorResponse{Detail: "Limit or offset < 1."})
+	if limit < 1 || offset < 0 {
+		c.JSON(http.StatusBadRequest, errorresponse.ErrorResponse{Detail: "Limit or offset invalid."})
 	}
 
 	items, err := h.listUseCase.Execute(c.Request.Context(), limit, offset)

@@ -47,8 +47,30 @@ services:
       - app-network
     restart: on-failure
 
+  minio:
+    image: minio/minio
+    container_name: go-minio
+
+    restart: unless-stopped
+
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+    env_file:
+      - .env
+
+    command: server /data --console-address ":9001"
+
+    volumes:
+      - minio_data:/data
+
+    networks:
+      - app-network
+
 volumes:
   postgres_data:
+  minio_data:
 
 networks:
   app-network:

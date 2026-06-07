@@ -2,12 +2,15 @@ package handler
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
+	"github.com/MaksimCpp/AvitoClone/internal/config"
 	errorresponse "github.com/MaksimCpp/AvitoClone/internal/delivery/http/error"
 	"github.com/MaksimCpp/AvitoClone/internal/domain/item"
 	itemusecase "github.com/MaksimCpp/AvitoClone/internal/usecase/item"
+	itemimageusecase "github.com/MaksimCpp/AvitoClone/internal/usecase/item_image"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,6 +20,12 @@ type ItemHandler struct {
 	getByIDUseCase itemusecase.GetItemByIDUseCase
 	listByUserIDUseCase itemusecase.ListItemsByUserIDUseCase
 	listUseCase itemusecase.ListItemsUseCase
+
+	uploadImageUseCase itemimageusecase.UploadImageUseCase
+	deleteImageUseCase itemimageusecase.DeleteImageUseCase
+	listImagesByItemIDUseCase itemimageusecase.ListImagesByItemIDUseCase
+
+	cfg *config.Config
 }
 
 func NewItemHandler(
@@ -25,6 +34,12 @@ func NewItemHandler(
 	getByIDUseCase itemusecase.GetItemByIDUseCase,
 	listByUserIDUseCase itemusecase.ListItemsByUserIDUseCase,
 	listUseCase itemusecase.ListItemsUseCase,
+
+	uploadImageUseCase itemimageusecase.UploadImageUseCase,
+	deleteImageUseCase itemimageusecase.DeleteImageUseCase,
+	listImagesByItemIDUseCase itemimageusecase.ListImagesByItemIDUseCase,
+
+	cfg *config.Config,
 ) *ItemHandler {
 	return &ItemHandler{
 		createUseCase: createUseCase,
@@ -32,6 +47,12 @@ func NewItemHandler(
 		getByIDUseCase: getByIDUseCase,
 		listByUserIDUseCase: listByUserIDUseCase,
 		listUseCase: listUseCase,
+
+		uploadImageUseCase: uploadImageUseCase,
+		deleteImageUseCase: deleteImageUseCase,
+		listImagesByItemIDUseCase: listImagesByItemIDUseCase,
+
+		cfg: cfg,
 	}
 }
 
@@ -52,6 +73,15 @@ type ItemDetailResponse struct {
 	Title string `json:"title"`
 	Description string `json:"description"`
 	Price float64 `json:"price"`
+}
+
+type UploadImageResponse struct {
+	ImageURL string `json:"image_url"`
+}
+
+type ImagesResponse struct {
+	ID int `json:"id"`
+	ImageURL string `json:"image_url"`
 }
 
 // @Summary Create item
@@ -200,14 +230,12 @@ func (h *ItemHandler) GetByID(c *gin.Context) {
 
 // @Summary List items by user id
 // @Description List items by user id
-// @Tags users
+// @Tags items
 // @Accept json
 // @Produce json
 // @Param user_id path int true "User ID"
-// @Security BearerAuth
 // @Success 200 {object} []ItemResponse
 // @Failure 400 {object} errorresponse.ErrorResponse
-// @Failure 401 {object} errorresponse.ErrorResponse
 // @Router /users/{user_id}/items [get]
 func (h *ItemHandler) ListByUserID(c *gin.Context) {
 	userIDParam := c.Param("user_id")
@@ -329,4 +357,151 @@ func (h *ItemHandler) List(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+
+// UploadImage godoc
+//
+//	@Summary Upload image
+//	@Description Upload image for item
+//	@Tags images
+//	@Accept	 mpfd
+//	@Produce json
+//	@Security BearerAuth
+//	@Param item_id	path int true "Item ID"
+//	@Param image formData file true "Image file"
+//	@Success 201 {object} UploadImageResponse
+//	@Failure 400 {object} errorresponse.ErrorResponse
+//	@Failure 401 {object} errorresponse.ErrorResponse
+//	@Router	 /images/{item_id} [post]
+func (h *ItemHandler) UploadImage(c *gin.Context) {
+	userIDValue, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, errorresponse.ErrorResponse{Detail: "Unauthorized."})
+		return
+	}
+
+	userID, ok := userIDValue.(int)
+	if !ok {
+		c.JSON(http.StatusBadRequest, errorresponse.ErrorResponse{Detail: "Invalid user id."})
+		return
+	}
+
+	itemID, err := strconv.Atoi(
+		c.Param("item_id"),
+	)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, errorresponse.ErrorResponse{Detail: "Invalid item id."})
+		return
+	}
+
+	fileHeader, err := c.FormFile("image")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, errorresponse.ErrorResponse{Detail: "Image is required."})
+		return
+	}
+
+	file, err := fileHeader.Open()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, errorresponse.ErrorResponse{Detail: "Cannot opened image."})
+		return
+	}
+	defer file.Close()
+
+	contentType := fileHeader.Header.Get("Content-Type")
+	input := itemimageusecase.UploadInput{
+		ItemID: itemID,
+		UserID: userID,
+		File: file,
+		Filename: fileHeader.Filename,
+		ContentType: contentType,
+		Size: fileHeader.Size,
+	}
+
+	imageURL, err := h.uploadImageUseCase.Execute(c.Request.Context(), input)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, errorresponse.ErrorResponse{Detail: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, UploadImageResponse{ImageURL: imageURL})
+}
+
+// ListImages godoc
+//
+//	@Summary		Get item images
+//	@Description	Get images for item
+//	@Tags			images
+//	@Produce		json
+//	@Param			id	path	int	true	"Item ID"
+//	@Success		200	{array}		ImagesResponse
+//	@Failure		400	{object}	errorresponse.ErrorResponse
+//	@Router			/items/{id}/images [get]
+func (h *ItemHandler) ListImagesByItemID(c *gin.Context) {
+	itemID, err := strconv.Atoi(
+		c.Param("id"),
+	)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, errorresponse.ErrorResponse{Detail: "Invalid item id."})
+		return
+	}
+
+	images, err := h.listImagesByItemIDUseCase.Execute(c.Request.Context(), itemID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, errorresponse.ErrorResponse{Detail: err.Error()})
+		return
+	}
+
+	var imagesResponse []ImagesResponse
+
+	for _, image := range images {
+		imagesResponse = append(imagesResponse, ImagesResponse{
+			ID: image.ID,
+			ImageURL: fmt.Sprintf(
+				"http://%s/%s/%s",
+				h.cfg.MinioEndpoint,
+				h.cfg.MinioBucket,
+				image.ObjectName,
+			),
+		})
+	}
+
+	c.JSON(http.StatusOK, imagesResponse)
+}
+
+// DeleteImage godoc
+//
+//	@Summary		Delete image
+//	@Description	Delete image by id
+//	@Tags			images
+//	@Security		BearerAuth
+//	@Param			image_id	path	int	true	"Image ID"
+//	@Success		204
+//	@Failure		400	{object}	errorresponse.ErrorResponse
+//	@Failure		401	{object}	errorresponse.ErrorResponse
+//	@Failure		403	{object}	errorresponse.ErrorResponse
+//	@Router			/images/{image_id} [delete]
+func (h *ItemHandler) DeleteImage(c *gin.Context) {
+	userIDValue, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusBadRequest, errorresponse.ErrorResponse{Detail: "Invalid user id."})
+		return
+	}
+
+	userID := userIDValue.(int)
+
+	imageID, err := strconv.Atoi(
+		c.Param("image_id"),
+	)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, errorresponse.ErrorResponse{Detail: "Invalid image id."})
+		return
+	}
+
+	err = h.deleteImageUseCase.Execute(c.Request.Context(), imageID, userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, errorresponse.ErrorResponse{Detail: err.Error()})
+		return
+	}
+
+	c.Status(http.StatusOK)
 }

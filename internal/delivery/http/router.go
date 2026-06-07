@@ -20,16 +20,21 @@ func SetupRoutes(
 	}
 
 	users := router.Group("/api/v1/users")
-	users.Use(middleware.AuthMiddleware(jwtService))
 	{
-		users.GET("/me", userHandler.GetMe)
 		users.GET("/:user_id/items", itemHandler.ListByUserID)
+	}
+
+	usersProtected := users.Group("")
+	usersProtected.Use(middleware.AuthMiddleware(jwtService))
+	{
+		usersProtected.GET("/me", userHandler.GetMe)
 	}
 
 	items := router.Group("/api/v1/items")
 	{
 		items.GET("/:id", itemHandler.GetByID)
 		items.GET("", itemHandler.List)
+		items.GET("/:id/images", itemHandler.ListImagesByItemID)
 	}
 	itemsProtected := items.Group("")
 	itemsProtected.Use(middleware.AuthMiddleware(jwtService))
@@ -37,5 +42,12 @@ func SetupRoutes(
 		itemsProtected.POST("", itemHandler.Create)
 		itemsProtected.DELETE("/:id", itemHandler.Delete)
 		itemsProtected.GET("/me", itemHandler.ListMyItems)
+	}
+
+	images := router.Group("/api/v1/images")
+	images.Use(middleware.AuthMiddleware(jwtService))
+	{
+		images.POST("/:item_id", itemHandler.UploadImage)
+		images.DELETE("/:image_id", itemHandler.DeleteImage)
 	}
 }

@@ -17,7 +17,7 @@ CREATE TABLE items (
 CREATE TABLE item_images (
     id SERIAL PRIMARY KEY,
     item_id INTEGER NOT NULL REFERENCES items(id) ON DELETE CASCADE,
-    image_url VARCHAR(1000) NOT NULL
+    object_name VARCHAR(1000) NOT NULL
 );
 
 CREATE TABLE chats (

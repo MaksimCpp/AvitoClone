@@ -1,6 +1,10 @@
 package item
 
-import "time"
+import (
+	"time"
+
+	itemimage "github.com/MaksimCpp/AvitoClone/internal/domain/item_image"
+)
 
 type Item struct {
 	ID int
@@ -9,11 +13,5 @@ type Item struct {
 	Description string
 	Price float64
 	CreatedAt time.Time
-	Images []ItemImage
-}
-
-type ItemImage struct {
-	ID int
-	ItemID int
-	ImageURL string
+	Images []itemimage.ItemImage
 }

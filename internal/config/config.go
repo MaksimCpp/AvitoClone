@@ -9,6 +9,7 @@ import (
 
 type Config struct {
 	AppPort string
+	AppHost string
 	SwaggerHost string
 
 	Host string
@@ -19,6 +20,12 @@ type Config struct {
 
 	JWTSecret string
 	JWTExpiresHours string
+
+	MinioEndpoint string
+	MinioAccessKey string
+	MinioSecretKey string
+	MinioBucket string
+	MinioUseSSL bool
 }
 
 func Load() *Config {
@@ -26,6 +33,7 @@ func Load() *Config {
 	
 	cfg := &Config{
 		AppPort: os.Getenv("APP_PORT"),
+		AppHost: os.Getenv("APP_HOST"),
 		SwaggerHost: os.Getenv("SWAGGER_HOST"),
 		Host: os.Getenv("POSTGRES_HOST"),
 		Port: os.Getenv("POSTGRES_PORT"),
@@ -35,6 +43,12 @@ func Load() *Config {
 
 		JWTSecret: os.Getenv("JWT_SECRET"),
 		JWTExpiresHours: os.Getenv("JWT_EXPIRES_HOURS"),
+
+		MinioEndpoint: os.Getenv("MINIO_ENDPOINT"),
+		MinioAccessKey: os.Getenv("MINIO_ACCESS_KEY"),
+		MinioSecretKey: os.Getenv("MINIO_SECRET_KEY"),
+		MinioBucket: os.Getenv("MINIO_BUCKET"),
+		MinioUseSSL: os.Getenv("MINIO_USE_SSL") == "true",
 	}
 
 	return cfg

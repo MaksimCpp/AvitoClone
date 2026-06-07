@@ -19,6 +19,13 @@ definitions:
       title:
         type: string
     type: object
+  handler.ImagesResponse:
+    properties:
+      id:
+        type: integer
+      image_url:
+        type: string
+    type: object
   handler.ItemDetailResponse:
     properties:
       description:
@@ -44,6 +51,11 @@ definitions:
       email:
         type: string
       password:
+        type: string
+    type: object
+  handler.UploadImageResponse:
+    properties:
+      image_url:
         type: string
     type: object
   handler.UserResponse:
@@ -111,6 +123,71 @@ paths:
       summary: Register user
       tags:
       - auth
+  /images/{image_id}:
+    delete:
+      description: Delete image by id
+      parameters:
+      - description: Image ID
+        in: path
+        name: image_id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorresponse.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorresponse.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/errorresponse.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete image
+      tags:
+      - images
+  /images/{item_id}:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload image for item
+      parameters:
+      - description: Item ID
+        in: path
+        name: item_id
+        required: true
+        type: integer
+      - description: Image file
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.UploadImageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorresponse.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/errorresponse.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload image
+      tags:
+      - images
   /items:
     get:
       consumes:
@@ -235,6 +312,31 @@ paths:
       summary: Get item by id
       tags:
       - items
+  /items/{id}/images:
+    get:
+      description: Get images for item
+      parameters:
+      - description: Item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handler.ImagesResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/errorresponse.ErrorResponse'
+      summary: Get item images
+      tags:
+      - images
   /items/me:
     get:
       consumes:
@@ -286,15 +388,9 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/errorresponse.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/errorresponse.ErrorResponse'
-      security:
-      - BearerAuth: []
       summary: List items by user id
       tags:
-      - users
+      - items
   /users/me:
     get:
       consumes:

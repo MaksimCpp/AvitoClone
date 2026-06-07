@@ -19,8 +19,10 @@ import (
 	"github.com/MaksimCpp/AvitoClone/internal/infrastructure/database"
 	"github.com/MaksimCpp/AvitoClone/internal/infrastructure/hash"
 	jwtservice "github.com/MaksimCpp/AvitoClone/internal/infrastructure/jwt"
+	miniostorage "github.com/MaksimCpp/AvitoClone/internal/infrastructure/storage"
 	"github.com/MaksimCpp/AvitoClone/internal/repository/postgresql"
 	itemusecase "github.com/MaksimCpp/AvitoClone/internal/usecase/item"
+	itemimageusecase "github.com/MaksimCpp/AvitoClone/internal/usecase/item_image"
 	userusecase "github.com/MaksimCpp/AvitoClone/internal/usecase/user"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -54,9 +56,34 @@ func main() {
 	getItemByIDUseCase := itemusecase.NewPostgreSQLGetItemByIDUseCase(itemRepo)
 	listItemsByUserIDUseCase := itemusecase.NewPostgreSQLListItemsByUserIDUseCase(itemRepo)
 	listItemsUseCase := itemusecase.NewPostgreSQLListItemsUseCase(itemRepo)
+
+	imageRepo := postgresql.NewPostgreSQLItemImageRepository(pool)
+	imageStorage, err := miniostorage.NewMinIOStorage(
+		cfg.MinioEndpoint,
+		cfg.MinioAccessKey,
+		cfg.MinioAccessKey,
+		cfg.MinioBucket,
+		cfg.MinioUseSSL,
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	uploadImageUseCase := itemimageusecase.NewPostgreSQLUploadImageUseCase(
+		imageRepo, itemRepo, imageStorage, cfg,
+	)
+	deleteImageUseCase := itemimageusecase.NewPostgreSQLDeleteImageUseCase(
+		imageRepo, itemRepo, imageStorage,
+	)
+	listImagerByItemIDUseCase := itemimageusecase.NewPostgreSQLListImagesByItemIDUseCase(
+		imageRepo,
+	)
+
 	itemHandler := handler.NewItemHandler(
 		createItemUseCase, deleteItemUseCase, getItemByIDUseCase,
 		listItemsByUserIDUseCase, listItemsUseCase,
+		uploadImageUseCase, deleteImageUseCase, listImagerByItemIDUseCase,
+		cfg,
 	)
 
 	router := gin.Default()

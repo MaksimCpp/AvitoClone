@@ -61,7 +61,7 @@ func (s *MinIOStorage) Upload(
 	objectName string,
 	contentType string,
 	size int64,
-	minioEndpoint string,
+	minioEndpointImage string,
 ) (string, error) {
 	_, err := s.client.PutObject(
 		ctx,
@@ -79,7 +79,7 @@ func (s *MinIOStorage) Upload(
 
 	url := fmt.Sprintf(
 		"http://%s/%s/%s",
-		minioEndpoint,
+		minioEndpointImage,
 		s.bucket,
 		objectName,
 	)

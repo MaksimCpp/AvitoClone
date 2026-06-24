@@ -458,7 +458,7 @@ func (h *ItemHandler) ListImagesByItemID(c *gin.Context) {
 			ID: image.ID,
 			ImageURL: fmt.Sprintf(
 				"http://%s/%s/%s",
-				h.cfg.MinioEndpoint,
+				h.cfg.MinioEndpointImage,
 				h.cfg.MinioBucket,
 				image.ObjectName,
 			),

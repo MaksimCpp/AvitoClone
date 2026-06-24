@@ -70,7 +70,7 @@ func (usecase *PostgreSQLUploadImageUseCase) Execute(
 		objectName,
 		input.ContentType,
 		input.Size,
-		usecase.cfg.MinioEndpoint,
+		usecase.cfg.MinioEndpointImage,
 	)
 	if err != nil {
 		return "", err

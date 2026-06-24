@@ -22,6 +22,7 @@ type Config struct {
 	JWTExpiresHours string
 
 	MinioEndpoint string
+	MinioEndpointImage string
 	MinioAccessKey string
 	MinioSecretKey string
 	MinioBucket string
@@ -49,6 +50,7 @@ func Load() *Config {
 		JWTExpiresHours: os.Getenv("JWT_EXPIRES_HOURS"),
 
 		MinioEndpoint: os.Getenv("MINIO_ENDPOINT"),
+		MinioEndpointImage: os.Getenv("MINIO_ENDPOINT_IMAGE"),
 		MinioAccessKey: os.Getenv("MINIO_ACCESS_KEY"),
 		MinioSecretKey: os.Getenv("MINIO_SECRET_KEY"),
 		MinioBucket: os.Getenv("MINIO_BUCKET"),

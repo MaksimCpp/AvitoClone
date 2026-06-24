@@ -68,9 +68,25 @@ services:
     networks:
       - app-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: go-redis
+
+    restart: unless-stopped
+
+    ports:
+      - "6379:6379"
+
+    volumes:
+      - redis_data:/data
+
+    networks:
+      - app-network
+
 volumes:
   postgres_data:
   minio_data:
+  redis_data:
 
 networks:
   app-network:

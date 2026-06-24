@@ -26,6 +26,10 @@ type Config struct {
 	MinioSecretKey string
 	MinioBucket string
 	MinioUseSSL bool
+
+	RedisAddr string
+	RedisPassword string
+	RedisDB string
 }
 
 func Load() *Config {
@@ -49,6 +53,10 @@ func Load() *Config {
 		MinioSecretKey: os.Getenv("MINIO_SECRET_KEY"),
 		MinioBucket: os.Getenv("MINIO_BUCKET"),
 		MinioUseSSL: os.Getenv("MINIO_USE_SSL") == "true",
+
+		RedisAddr: os.Getenv("REDIS_ADDR"),
+		RedisPassword: os.Getenv("REDIS_PASSWORD"),
+		RedisDB: os.Getenv("REDIS_DB"),
 	}
 
 	return cfg

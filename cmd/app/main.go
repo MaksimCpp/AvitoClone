@@ -10,6 +10,7 @@ package main
 
 import (
 	"log"
+	"strconv"
 	"time"
 
 	docs "github.com/MaksimCpp/AvitoClone/docs"
@@ -20,11 +21,14 @@ import (
 	"github.com/MaksimCpp/AvitoClone/internal/infrastructure/hash"
 	jwtservice "github.com/MaksimCpp/AvitoClone/internal/infrastructure/jwt"
 	miniostorage "github.com/MaksimCpp/AvitoClone/internal/infrastructure/storage"
+	"github.com/MaksimCpp/AvitoClone/internal/repository/cached"
 	"github.com/MaksimCpp/AvitoClone/internal/repository/postgresql"
+	avitoredis "github.com/MaksimCpp/AvitoClone/internal/repository/redis"
 	itemusecase "github.com/MaksimCpp/AvitoClone/internal/usecase/item"
 	itemimageusecase "github.com/MaksimCpp/AvitoClone/internal/usecase/item_image"
 	userusecase "github.com/MaksimCpp/AvitoClone/internal/usecase/user"
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -38,6 +42,20 @@ func main() {
 	}
 	defer pool.Close()
 
+	redisDB, err := strconv.Atoi(cfg.RedisDB)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	rdb := redis.NewClient(
+		&redis.Options{
+			Addr: cfg.RedisAddr,
+			Password: cfg.RedisPassword,
+			DB: redisDB,
+		},
+	)
+	defer rdb.Close()
+
 	hasher := hash.NewBcryptHasher()
 	jwtService := jwtservice.NewJWTService(
 		cfg.JWTSecret,
@@ -50,12 +68,15 @@ func main() {
 	getMeUseCase := userusecase.NewPostgreSQLGetMeUseCase(userRepo)
 	userHandler := handler.NewUserHandler(registerUserUseCase, loginUserUseCase, getMeUseCase)
 
+	cache := avitoredis.NewCache(rdb)
+
 	itemRepo := postgresql.NewPostgreSQLItemRepository(pool)
-	createItemUseCase := itemusecase.NewPostgreSQLCreateItemUseCase(itemRepo)
-	deleteItemUseCase := itemusecase.NewPostgreSQLDeleteItemUseCasee(itemRepo)
-	getItemByIDUseCase := itemusecase.NewPostgreSQLGetItemByIDUseCase(itemRepo)
-	listItemsByUserIDUseCase := itemusecase.NewPostgreSQLListItemsByUserIDUseCase(itemRepo)
-	listItemsUseCase := itemusecase.NewPostgreSQLListItemsUseCase(itemRepo)
+	cachedItemRepo := cached.NewCachedItemRepository(itemRepo, cache)
+	createItemUseCase := itemusecase.NewPostgreSQLCreateItemUseCase(cachedItemRepo)
+	deleteItemUseCase := itemusecase.NewPostgreSQLDeleteItemUseCasee(cachedItemRepo)
+	getItemByIDUseCase := itemusecase.NewPostgreSQLGetItemByIDUseCase(cachedItemRepo)
+	listItemsByUserIDUseCase := itemusecase.NewPostgreSQLListItemsByUserIDUseCase(cachedItemRepo)
+	listItemsUseCase := itemusecase.NewPostgreSQLListItemsUseCase(cachedItemRepo)
 
 	imageRepo := postgresql.NewPostgreSQLItemImageRepository(pool)
 	imageStorage, err := miniostorage.NewMinIOStorage(
